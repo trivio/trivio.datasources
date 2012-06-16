@@ -21,3 +21,4 @@ class HTTPSource(object):
     return [self.parsed_url + '#' + start.isoformat()]
 
 datasources.set_source_for_scheme(HTTPSource,'http')
+datasources.set_source_for_scheme(HTTPSource,'https')
