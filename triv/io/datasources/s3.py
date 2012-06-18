@@ -5,24 +5,24 @@ import boto
 
 from triv.io import datasources
 
-class S3Source(object):
+class S3Source(datasources.DataSource):
   """Treats S3 like a database"""
     
   def __init__(self, parsed_url):
-    self.parsed_url = parsed_url
+    super(S3Source,self).__init__(parsed_url)
     self.acccess_key_id    = urlparse.unquote(parsed_url.username)
     self.secret_access_key = urlparse.unquote(parsed_url.password)
 
     self.conn = boto.connect_s3(self.acccess_key_id , self.secret_access_key)
     self.bucket_name = parsed_url.hostname
-    self.prefix = parsed_url.path.strip('/')
     self.bucket = self.conn.get_bucket(self.bucket_name,validate=False)
 
     
   def earliest_record_time(self):
     # Grab and parse the first key
+    #self.bucket.get_all_keys(self.prefix + '/', delimiter='/', max_keys=1)
 
-    for prefix in self.bucket.list(self.prefix + '/', delimiter='/'):
+    for prefix in self.bucket.get_all_keys(self.prefix + '/', delimiter='/', max_keys=1):
       params = dict([entry.split('=',1) for entry in prefix.split('/')])
       date = params['dt']
       return parser.parse(date)

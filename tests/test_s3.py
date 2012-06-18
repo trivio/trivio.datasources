@@ -2,6 +2,7 @@ from datetime import datetime
 from unittest import TestCase
 
 from nose.tools import eq_
+from disco.worker.classic.worker import Params 
 
 from triv.io.datasources import s3
 from triv.io import datasources
@@ -19,8 +20,7 @@ class TestS3Source(TestCase):
     eq_(len(urls),1)
     assert urls[0].startswith('http://trivio.test.s3.amazonaws.com/compensation/dt%3D2011-05-31T00%3A00%3A00/compensation_final.csv?')
     
-    input_stream = datasources.input_stream_for(urls[0])
-    stream = input_stream(None, 0, urls[0], None)[0]
+    stream = datasources.input_stream_for(None, 0, urls[0], Params())
     count=0
     for rec in stream:
       count+=1
