@@ -13,7 +13,7 @@ You can help by  contributing the code needed to provide data from the sources w
 How Data Sources Work
 ---
 
-A data source is simply a python module that provides information about what [segments](https://github.com/trivio/trivio.datasources/tree/master/docs)
+A data source is simply a python module that provides information about what [segments](https://github.com/trivio/trivio.datasources/blob/master/docs/segments.md)
 of data are currently available to triv.io along with the code to actually retrieve the data from
 it's source and conform it into the triv.io record format.
 
@@ -110,7 +110,7 @@ class MySourceSource(datasource.DataSource):
 datasources.set_source_for_scheme('mock', MockSource)
 ```
 
-4. Crate a test for  your code see the test directory. Note we use nose to run all our tests
+4. Create a test for  your code see the test directory.  We use nose to run all our tests, if you don't have it run `pip install nose`
 
 5. Update requirments.pip to include an additional dependencies. Please include version numbers
 
