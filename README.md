@@ -13,27 +13,74 @@ You can help by  contributing the code needed to provide data from the sources w
 How Data Sources Work
 ---
 
-A data source is simply a python module that provides information about what [segments]() of data are currently available to triv.io along with the code to actually retrieve the data from it's source and conform it into the triv.io record format.
+A data source is simply a python module that provides information about what [segments](https://github.com/trivio/trivio.datasources/tree/master/docs)
+of data are currently available to triv.io along with the code to actually retrieve the data from
+it's source and conform it into the triv.io record format.
 
-To get started we'll walk through creating a DataSource that can fetch segments from the `mock' scheme. When we're done with this tutorial you can create a  triv.io script that looks like this.
+Here is an example of how the 'mock' scheme was implemented for testing.
+
+```python
+from datetime import datetime
+from urlparse import urlparse, urlunparse, parse_qs
+
+from dateutil.parser import parse as parse_date
+
+from triv.io import datasources
+
+class MockSource(datasources.DataSource):
+  @staticmethod
+  def input_stream(stream, size, url, params):
+    '''Return an iterator'''
+    return enumerate([['1','2','3']]), None, url
+    
+    # parse the query flatten key's with single values
+    record = parse_qs(urlparse(url).query)
+    for key,val in record.items():
+      if len(val) == 1:
+        record[key] = val[0]
+    
+    return  iter([record])
+
+  @property
+  def table(self):
+    return self.parsed_url.netloc
+
+  def earliest_record_time(self):
+    dtstart = self.query.get('dtstart')
+    if dtstart is None:
+      self.dtstart = datetime.utcnow()
+    else:
+      self.dtstart = parse_date(dtstart[0])
+    
+    return self.dtstart
+  
+    
+  def segment_between(self, start, end):
+    '''Return a list of url's that belong in the given time range. Note all
+    information needed to access a url must be encoded into the url'''
+    
+
+    scheme, netloc, path, params, query, fragment = self.parsed_url
+    fragment = start.isoformat()
+    
+    return [urlunparse((scheme, netloc, path, params, query, fragment))]
+  
+datasources.set_source_for_scheme(MockSource,'mock')
+```
+
+This source let's you create jobs whose source scheme are `mock` like this
+
+```python
+
+job = rule('mock://foo')
 
 ```
- job = rule('mock://foo?arg1=2&arg2=3')
 
- # The mock class will pass one record to the map function whose keys are
- # the arguments from the url
- @job.map
- def map(record, params):
-   # mock://foo?arg1=2&arg2=3 -> (arg1,1), (arg2,1)
-   for key in record.keys():
-     yield key, 1
- 
- @job.reduce(iter, params):
-	 from disco.util import kvgroup
-	    for word, counts in kvgroup(sorted(iter)):
-	      yield word, sum(counts)
 
-```
+
+
+Contributing
+----
 
 1. To start, fork the [trivio.datasources repository](https://github.com/trivio/trivio.datasources)  from github. 
 
@@ -44,32 +91,28 @@ $ git clone https://github.com/yourgituser/trivio.datasources.git
 $ cd trivio.datasources/datasources
 ```
 
-3. Create a new file named `mock.py` and add the following code to it.
+3. Create a new file named `mysource.py` and add your code to it
 
 ```python
 from triv.io import datasources
 
 
-class MockSource(object):
-  def __init__(self, parsed_url):
-    self.parsed_url = parsed_url
-  
+class MySourceSource(datasource.DataSource):  
   @staticmethod  
   def input_stream(stream, size, url, params):
-     '''Return an iterator'''
+     '''Return an iterator of dictionaries here'''
     
   def segments_between(self, start, end):
      '''Return a list of url's that belong in the given time range. Note all
      information needed to access a url must be encoded into the url'''
      return [self.url.geturl()]
   
-triv.io.datasources.set_source_for_scheme('mock', MockSource)
-triv.io.datasources.set_input_stream_for_scheme('mock', MockSource.input_stream) 
-
-
+datasources.set_source_for_scheme('mock', MockSource)
 ```
 
-4. Test your code
+4. Crate a test for  your code see the test directory. Note we use nose to run all our tests
+
+5. Update requirments.pip to include an additional dependencies. Please include version numbers
 
 5. Send a pull request to [github/trivio/trivio.datasources](https://github.com/trivio/trivio.datasources)
 
