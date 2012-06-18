@@ -1,0 +1,4 @@
+python-dateutil==1.5
+boto
+warc
+MySQL-python
