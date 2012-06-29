@@ -21,9 +21,9 @@ class S3Source(datasources.DataSource):
   def earliest_record_time(self):
     # Grab and parse the first key
     #self.bucket.get_all_keys(self.prefix + '/', delimiter='/', max_keys=1)
-
-    for prefix in self.bucket.get_all_keys(self.prefix + '/', delimiter='/', max_keys=1):
-      params = dict([entry.split('=',1) for entry in prefix.split('/')])
+    for key in self.bucket.get_all_keys(prefix=self.prefix + '/', delimiter='/', max_keys=1):
+      parts = filter(None, key.name.split('/')[1:])
+      params = dict([entry.split('=',1) for entry in parts])
       date = params['dt']
       return parser.parse(date)
     
