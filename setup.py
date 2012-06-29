@@ -7,6 +7,6 @@ setup(
     author='Scott Robertson',
     author_email='srobertson@codeit.com',
     packages = find_packages(),
-    install_requires = ['boto']
+    install_requires = ['boto', 'warc', 'python-dateutil==1.5', 'MySQL-python']
 
 )
