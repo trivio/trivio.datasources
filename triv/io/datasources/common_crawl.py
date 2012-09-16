@@ -43,7 +43,7 @@ class CommonCrawlSource(S3Source):
       else:
         if key.size > 0:
           urls.append(key.generate_url(seconds_good_for,force_http=True))
-          break
+
         
     return urls
     

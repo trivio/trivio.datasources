@@ -9,4 +9,4 @@ def input_stream(stream):
   for record in stream:
     yield record
     count += 1
-    if count > 10: break
+    #if count > 10: break
