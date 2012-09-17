@@ -124,7 +124,7 @@ def input_stream_for(stream, size, url, params):
     if hasattr(params, 'content_type'):
       stream = reader_for_mimetype(params.content_type)(stream)
       
-    def log_if_error(self, stream):
+    def log_if_error(stream):
       count = 0
       try:
         for record in stream:
