@@ -123,8 +123,23 @@ def input_stream_for(stream, size, url, params):
     stream = src_cls.input_stream(stream, size, url, params)
     if hasattr(params, 'content_type'):
       stream = reader_for_mimetype(params.content_type)(stream)
+      
+    def log_if_error(self, stream):
+      count = 0
+      try:
+        for record in stream:
+          yield record
+          count += 1
+      except Exception, e:
+        print "Error {} encountered at record {} in {} {}".format(
+          e,
+          count,
+          stream,
+          url
+        )
+      
     
-    return stream
+    return log_if_error(stream)
   else:
     return None
 

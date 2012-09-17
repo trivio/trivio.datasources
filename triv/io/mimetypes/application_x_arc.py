@@ -4,9 +4,5 @@ import warc
 
 @datasources.read_mimetype('application/x-arc')
 def input_stream(stream):
-  stream = warc.ARCFile(fileobj=GzipFile(fileobj=stream))
-  count = 0
-  for record in stream:
-    yield record
-    count += 1
-    #if count > 10: break
+  return warc.ARCFile(fileobj=GzipFile(fileobj=stream))
+
