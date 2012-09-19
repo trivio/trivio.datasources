@@ -36,7 +36,7 @@ class CommonCrawlSource(S3Source):
 
     prefix = self._key_for_datetime(start)
     urls = []
-    limit = 100 # limit to a thousand warc files
+    limit = 10 # limit to a thousand warc files
     for key in self.bucket.list(prefix=prefix):
       dt = self._datetime_for_key(key)
       if dt > end:
