@@ -23,6 +23,9 @@ class RepoSource(datasources.DataSource):
     url = 'file://' + path
 
     return open_url(url)
+  
+  def earliest_record_time(self):
+    return datetime.utcnow()
     
     
   def segment_between(self, start, end):
