@@ -14,7 +14,10 @@ class TestMockSource(TestCase):
     urls = source.segment_between(datetime(2011,5,31), datetime(2011,6,1))
     eq_(len(urls),1)
     eq_(urls[0], url+'#2011-05-31T00:00:00')
-  
-    input_stream = datasources.input_stream_for(None, 0, urls[0], None)[0]
-    record = iter(input_stream).next()
+
+
+  def __test_mock_url_stream(self):
+    input_stream = datasources.input_stream_for(None, 0, urls[0], None)
+    record = input_stream.next()
+
     self.assertSequenceEqual(record, (0, ['1', '2', '3']))

@@ -33,7 +33,6 @@ class S3Source(datasources.DataSource):
   def segment_between(self, start, end):
     # TODO: this won't return a range of key's only the bucket that start's exactly
     # with the start time
-    
     keys = self.bucket.list("{0}/dt={1}/".format(self.prefix, start.isoformat()), delimiter='/')
     seconds_good_for = 60*60*24
   
