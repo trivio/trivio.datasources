@@ -43,9 +43,9 @@ class RepoSource(datasources.DataSource):
     
     urls = []
     for root, dirs, files in os.walk(path):
-      for d in dirs[:]:
+      for i,d in enumerate(dirs[:]):
         if d.startswith('.'):
-          del dirs[d]
+          del dirs[i]
         
       dir = root[prefix_len:]
       
