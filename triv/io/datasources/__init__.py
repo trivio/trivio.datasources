@@ -2,6 +2,9 @@ import urlparse
 import os
 import re
 
+from triv.io import task
+
+
 sources_by_url            = {}
 sources_by_scheme         = {}
 
@@ -125,23 +128,42 @@ def input_stream_for(stream, size, url, params):
       stream = reader_for_mimetype(params.content_type)(stream)
       
     def log_if_error(stream):
-      count = 0
       try:
-        for record in stream:
-          yield record
-          count += 1
-      except Exception, e:
-        print "Error {} encountered at record {} in {} {}".format(
-          e,
-          count,
-          stream,
-          url
-        )
-      
+        count = 0
+        try:
+          for record in stream:
+            yield record
+            count += 1
+        except Exception, e:
+          print "Error {} encountered at record {} in {} {}".format(
+            e,
+            count,
+            stream,
+            url
+          )
+      finally:
+        task.pop()
     
     return log_if_error(stream)
   else:
     return None
+
+def map_input_stream(stream, size, url, params):
+  from disco.util import schemesplit
+  import disco.func
+  from triv.io import datasources
+  datasources.load()
+
+
+  input_stream = datasources.input_stream_for(stream, size, url, params)
+  if input_stream:
+    # Note: Task is a global set by disco, we push it onto the context stap
+    # which will allow it to be imported by the modules that need it
+    task.push(Task)
+    return input_stream
+  else:
+    return disco.func.map_input_stream(stream,size,url,params)
+
 
 def load():
   from ..mimetypes import application_json, application_x_arc

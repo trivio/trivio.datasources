@@ -6,7 +6,7 @@ from nose.tools import eq_
 from mock import patch
 
 from triv.io.datasources import repo
-from triv.io import datasources
+from triv.io import datasources, task
 
 
 class FakeRule(object):
@@ -57,9 +57,10 @@ class TestRepoSource(TestCase):
     )
     
   def test_input_stream(self):
-    repo.RepoSource.input_stream.func_globals['Task'] = FakeTask()
+
+    task.push(FakeTask())
     
     input_stream = datasources.input_stream_for(None, 0, 'repo://dir1/doc1.txt', None)
     eq_('Hi mom!', input_stream.next())
-
+    task.pop()
     

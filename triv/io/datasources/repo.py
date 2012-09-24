@@ -4,7 +4,7 @@ from urlparse import urlparse, urlunparse, parse_qs
 
 from dateutil.parser import parse as parse_date
 
-from triv.io import datasources
+from triv.io import datasources, task
 
 class RepoSource(datasources.DataSource):
   """Sources files relative to the currently running job"""
@@ -19,7 +19,7 @@ class RepoSource(datasources.DataSource):
     # repo://foo/blah -> foo/blah
     url = urlparse(url)
     path = url.netloc + url.path
-    path = Task.path(path)
+    path = task.path(path)
     url = 'file://' + path
 
     return open_url(url)
