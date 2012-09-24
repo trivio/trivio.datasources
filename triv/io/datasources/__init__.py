@@ -116,6 +116,7 @@ def source_for(url):
     return src_cls(parsed_url)
     
 def input_stream_for(stream, size, url, params):
+  print "task----->", globals().get('Task')
   parsed_url = urlparse.urlparse(url)
   src_cls = source_class_for(parsed_url)
 
