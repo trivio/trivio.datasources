@@ -19,9 +19,8 @@ class RepoSource(datasources.DataSource):
     # repo://foo/blah -> foo/blah
     url = urlparse(url)
     path = url.netloc + url.path
-    
-    print path, task.stack[0].jobpath
-
+    while path.startswith('/'):
+      path = path[1:]
     
     path = task.path(path)
     url = 'file://' + path
