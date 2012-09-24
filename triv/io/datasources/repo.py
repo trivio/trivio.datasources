@@ -23,9 +23,9 @@ class RepoSource(datasources.DataSource):
     
     while path.startswith('/'):
       path = path[1:]
+      
+    path = os.path.join(task.jobpath, path)
     
-    path = task.path(path)
-    print 'new path', path
     url = 'file://' + path
 
     return open_url(url)
