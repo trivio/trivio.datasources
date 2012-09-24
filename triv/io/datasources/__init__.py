@@ -154,14 +154,16 @@ def map_input_stream(stream, size, url, params):
   from triv.io import datasources
   datasources.load()
 
-
+  task.push(Task)
   input_stream = datasources.input_stream_for(stream, size, url, params)
   if input_stream:
     # Note: Task is a global set by disco, we push it onto the context stap
     # which will allow it to be imported by the modules that need it
-    task.push(Task)
+
     return input_stream
   else:
+    # we don't handle the given url, see if vanilla disco moduels can
+    task.pop() # this is normally cleared when we're done iterating
     return disco.func.map_input_stream(stream,size,url,params)
 
 
