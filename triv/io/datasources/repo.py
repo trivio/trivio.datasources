@@ -24,11 +24,11 @@ class RepoSource(datasources.DataSource):
       path = path[1:]
       
     path = os.path.join(task.disco_data, task.jobpath, path)
-    print path
+    #print path
     
-    url = 'file://' + path
+    #url = 'file://' + path
 
-    return open_url(url)
+    return (open(path),) #open_url(url)
   
   def earliest_record_time(self):
     return datetime.utcnow()
