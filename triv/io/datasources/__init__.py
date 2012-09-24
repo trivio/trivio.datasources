@@ -2,8 +2,6 @@ import urlparse
 import os
 import re
 
-from triv.io import task
-
 
 sources_by_url            = {}
 sources_by_scheme         = {}
@@ -151,7 +149,8 @@ def input_stream_for(stream, size, url, params):
 def map_input_stream(stream, size, url, params):
   from disco.util import schemesplit
   import disco.func
-  from triv.io import datasources
+  from triv.io import datasources, task
+  
   datasources.load()
 
   task.push(Task)
