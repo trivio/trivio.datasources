@@ -20,8 +20,8 @@ class RepoSource(datasources.DataSource):
     url = urlparse(url)
     path = url.netloc + url.path
     
-    print task.stack[0]
-    print dir(task.stack[0])
+    print path, task.stack[0].jobpath
+
     
     path = task.path(path)
     url = 'file://' + path
