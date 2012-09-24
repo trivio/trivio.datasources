@@ -23,7 +23,7 @@ class RepoSource(datasources.DataSource):
     while path.startswith('/'):
       path = path[1:]
       
-    path = os.path.join(task.discod_ata, task.jobpath, path)
+    path = os.path.join(task.disco_data, task.jobpath, path)
     print path
     
     url = 'file://' + path
