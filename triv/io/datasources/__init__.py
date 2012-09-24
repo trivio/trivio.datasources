@@ -12,6 +12,9 @@ readers_by_mimetype       = {}
 input_streams_for_domains   = {}
 input_streams_for_schemes   = {}
 
+from triv.io import task
+
+
 class DataSource(object):
   
   #grain = "transaction|periodic snapshot|accumilating snapshot"
