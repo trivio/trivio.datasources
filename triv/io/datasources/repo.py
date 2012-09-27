@@ -43,7 +43,7 @@ class RepoSource(datasources.DataSource):
     directory.
   
     '''
-    
+
     prefix_len = len(self.rule.job_path)
     path = self.rule.path(self.parsed_url.path)
     

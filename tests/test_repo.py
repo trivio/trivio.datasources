@@ -28,8 +28,14 @@ class FakeTask(FakeRule):
   are identical for the Rule and Task. We'll subclass here to
   keep the code clear"""
 
+  jobpath = FakeRule.job_path
   def path(self, path):
     return super(FakeTask,self).path(path)
+  
+  @property
+  def disco_data(self):
+    return self.path('')
+    
 
 class TestRepoSource(TestCase):
 
@@ -46,6 +52,7 @@ class TestRepoSource(TestCase):
     # create a scheme that defrences during work
     
     # note: source_segment is called in pipeline not the workers
+
     urls = source.segment_between(datetime(2011,5,31), datetime(2011,6,1))
     self.assertSequenceEqual(
       urls,
@@ -61,6 +68,6 @@ class TestRepoSource(TestCase):
     task.push(FakeTask())
     
     input_stream = datasources.input_stream_for(None, 0, 'repo://dir1/doc1.txt', None)
-    eq_('Hi mom!', input_stream.next())
+    eq_('Hi mom!', input_stream.next().read())
     task.pop()
     
