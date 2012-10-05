@@ -171,7 +171,7 @@ def sample_input_stream(fd, url, size, params):
   count = 0
      
   for record in fd:
-    if count == 1000:
+    if count == 10:
       return
     else:
       count +=1
