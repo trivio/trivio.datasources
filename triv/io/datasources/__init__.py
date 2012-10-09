@@ -179,7 +179,6 @@ def sample_input_stream(fd, url, size, params):
     yield record
 
 def load():
-  import pdb; pdb.set_trace()
   from ..mimetypes import application_json, application_x_arc
   for f in os.listdir(os.path.dirname(__file__)):
     match = re.match('^(?!__)(.*)\.py',f)
