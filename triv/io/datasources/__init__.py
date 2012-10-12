@@ -8,6 +8,7 @@ sources_by_scheme         = {}
 
 input_streams_for_urls    = {}
 readers_by_mimetype       = {}
+writers_by_mimetype       = {}
 
 input_streams_for_domains   = {}
 input_streams_for_schemes   = {}
@@ -92,6 +93,10 @@ def read_mimetype(mimetype):
     
 def reader_for_mimetype(mimetype):
   return readers_by_mimetype.get(mimetype, lambda s:s)
+
+def writer_for_mimetype(mimetype):
+  return writers_by_mimetype[mimetype]
+
   
 def source_class_for(parsed_url):
   """Returns the source for the given url.
