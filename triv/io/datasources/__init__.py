@@ -86,6 +86,14 @@ def set_input_stream_for_scheme(scheme, input_stream):
   
 
 def read_mimetype(mimetype):
+  """
+  Decorator to register new mimetypes readers
+  
+  Usage:
+  @datastores.read_mimetype
+  def some_reader(stream):
+    ...
+  """
   def wrap(f):
     readers_by_mimetype[mimetype] = f
     return f
@@ -93,6 +101,23 @@ def read_mimetype(mimetype):
     
 def reader_for_mimetype(mimetype):
   return readers_by_mimetype.get(mimetype, lambda s:s)
+
+
+def write_mimetype(mimetype):
+  """
+  Decorator to register new mimetypes writers
+  
+  Usage:
+  @datastores.read_mimetype
+  def some_reader(stream):
+    ...
+  """
+  
+  def wrap(f):
+    writers_by_mimetype[mimetype] = f
+    return f
+  return wrap
+
 
 def writer_for_mimetype(mimetype):
   return writers_by_mimetype[mimetype]
@@ -184,7 +209,7 @@ def sample_input_stream(fd, url, size, params):
     yield record
 
 def load():
-  from ..mimetypes import application_json, application_x_arc
+  from ..mimetypes import application_json, application_x_arc, text_csv
   for f in os.listdir(os.path.dirname(__file__)):
     match = re.match('^(?!__)(.*)\.py',f)
     if match:
