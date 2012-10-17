@@ -119,8 +119,11 @@ def write_mimetype(mimetype):
   return wrap
 
 
-def writer_for_mimetype(mimetype):
-  return writers_by_mimetype[mimetype]
+def writer_for_mimetype(stream, partition, url, params):
+  from triv.io import datasources
+  datasources.load()
+  cls = datasources.writers_by_mimetype[params.mimetype]
+  return cls(stream)
 
   
 def source_class_for(parsed_url):
@@ -209,7 +212,8 @@ def sample_input_stream(fd, url, size, params):
     yield record
 
 def load():
-  from ..mimetypes import application_json, application_x_arc, text_csv
+  import triv.io.mimetypes
+
   for f in os.listdir(os.path.dirname(__file__)):
     match = re.match('^(?!__)(.*)\.py',f)
     if match:
