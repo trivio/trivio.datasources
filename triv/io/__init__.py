@@ -1,7 +1,10 @@
 import threading
 class TaskProxy(object):
   """
-  Provides an importable global context for passing the Task around
+  Provides an importable global context for passing the Task around.
+  
+  Modules that need access to the global context simply
+  >>> from triv.io import task
   """
   
   local = threading.local()
