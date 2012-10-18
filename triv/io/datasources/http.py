@@ -11,7 +11,7 @@ class HTTPSource(datasources.DataSource):
     stream, size, url = http_input_stream(stream, size,url,params)
     params.headers = stream.headers
     params.content_type = stream.headers['content-type']
-    return stream#enumerate(stream)
+    return stream
     
   def earliest_record_time(self):
     return datetime.utcnow()

@@ -8,6 +8,7 @@ sources_by_scheme         = {}
 
 input_streams_for_urls    = {}
 readers_by_mimetype       = {}
+writers_by_mimetype       = {}
 
 input_streams_for_domains   = {}
 input_streams_for_schemes   = {}
@@ -85,12 +86,45 @@ def set_input_stream_for_scheme(scheme, input_stream):
   
 
 def read_mimetype(mimetype):
+  """
+  Decorator to register new mimetypes readers
+  
+  Usage:
+  @datastores.read_mimetype
+  def some_reader(stream):
+    ...
+  """
   def wrap(f):
     readers_by_mimetype[mimetype] = f
+    return f
   return wrap
     
 def reader_for_mimetype(mimetype):
   return readers_by_mimetype.get(mimetype, lambda s:s)
+
+
+def write_mimetype(mimetype):
+  """
+  Decorator to register new mimetypes writers
+  
+  Usage:
+  @datastores.read_mimetype
+  def some_reader(stream):
+    ...
+  """
+  
+  def wrap(f):
+    writers_by_mimetype[mimetype] = f
+    return f
+  return wrap
+
+
+def writer_for_mimetype(stream, partition, url, params):
+  from triv.io import datasources
+  datasources.load()
+  cls = datasources.writers_by_mimetype[params.mimetype]
+  return cls(stream)
+
   
 def source_class_for(parsed_url):
   """Returns the source for the given url.
@@ -155,23 +189,31 @@ def map_input_stream(stream, size, url, params):
   from triv.io import datasources, task
   
   datasources.load()
-
   task.push(Task)
   input_stream = datasources.input_stream_for(stream, size, url, params)
   if input_stream:
     # Note: Task is a global set by disco, we push it onto the context stap
     # which will allow it to be imported by the modules that need it
-
     return input_stream
   else:
     # we don't handle the given url, see if vanilla disco moduels can
     task.pop() # this is normally cleared when we're done iterating
     return disco.func.map_input_stream(stream,size,url,params)
 
+def sample_input_stream(fd, url, size, params):
+  count = 0
+     
+  for record in fd:
+    if count == 1000:
+      return
+    else:
+      count +=1
+
+    yield record
 
 def load():
+  import triv.io.mimetypes
 
-  from ..mimetypes import application_json, application_x_arc
   for f in os.listdir(os.path.dirname(__file__)):
     match = re.match('^(?!__)(.*)\.py',f)
     if match:
