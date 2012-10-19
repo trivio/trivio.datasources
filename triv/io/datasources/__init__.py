@@ -177,7 +177,10 @@ def input_stream_for(stream, size, url, params):
             url
           )
       finally:
-        task.pop()
+        try:
+          task.pop()
+        except IndexError:
+          pass
     
     return log_if_error(stream)
   else:
