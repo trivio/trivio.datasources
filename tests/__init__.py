@@ -79,9 +79,9 @@ class MockBucket:
     def set_location(self, new_location):
         self.connection.mock_s3_fs[self.name]['location'] = new_location
 
-    def list(self, prefix='', delimiter=''):
+    def list(self, prefix='', delimiter='', marker=''):
         for key_name in sorted(self.mock_state()):
-            if key_name.startswith(prefix):
+            if key_name.startswith(prefix) and (key_name > marker):
                 yield MockKey(bucket=self, name=key_name,
                               date_to_str=to_iso8601)
 
