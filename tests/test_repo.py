@@ -8,34 +8,8 @@ from mock import patch
 from triv.io.datasources import repo
 from triv.io import datasources, task
 
+from fake import FakeRule, FakeTask
 
-class FakeRule(object):
-  @property
-  def job_path(self):
-    return os.path.join(
-      os.path.dirname(__file__),
-      'data/repo'
-    )
-  
-  def path(self,path):
-    return os.path.join(
-      self.job_path,
-      path
-    )
-  
-class FakeTask(FakeRule):
-  """The parts of the interface that the RepoSource  cares about
-  are identical for the Rule and Task. We'll subclass here to
-  keep the code clear"""
-
-  jobpath = FakeRule.job_path
-  def path(self, path):
-    return super(FakeTask,self).path(path)
-  
-  @property
-  def disco_data(self):
-    return self.path('')
-    
 
 class TestRepoSource(TestCase):
 
