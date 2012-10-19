@@ -9,14 +9,6 @@ from disco.schemes.scheme_http import input_stream as http_input_stream
 
 class CommonCrawlSource(S3Source):
   
-  # todo sources should define the map_input_stream as a series
-  # def arc_to_mime(doc, size, url, params):
-  #  return mime_stream(doc.content_type)
-  
-  # of input_streams [http_input_stream, mime_stream('application/x-arc'), arc_to_mime ]
-  
-  
-  
   @staticmethod
   def input_stream(stream, size, url, params):
     params.content_type = 'application/x-arc'
@@ -28,7 +20,7 @@ class CommonCrawlSource(S3Source):
     year,month,day = [int(i) for i in key.name.split('/')[2:5]]
     return datetime.datetime(year,month,day)
     
-  def _key_for_datetime(self, dt):
+  def _prefix_for_datetime(self, dt):
       key_name = "{base}/{year}/{month:02d}/{day:02d}/".format(
         base=self.prefix,
         year = dt.year,
@@ -46,7 +38,7 @@ class CommonCrawlSource(S3Source):
     # TODO: be awesome if sample files were served from the file system
 
     start = self.earliest_record_time()
-    prefix = self._key_for_datetime(start)
+    prefix = self._prefix_for_datetime(start)
     
     # grab the first key
     key = iter(self.bucket.list(prefix=prefix)).next()
@@ -57,13 +49,17 @@ class CommonCrawlSource(S3Source):
     
   def segment_between(self, start,end):
 
-    prefix = self._key_for_datetime(start)
+    marker = self._prefix_for_datetime(start)
     urls = []
     
     limit = self.rule._params.get('maxinput', float('inf'))
-    
-    for key in self.bucket.list(prefix=prefix):
-      dt = self._datetime_for_key(key)
+
+    for key in self.bucket.list(prefix=self.prefix, marker=marker):
+      try:
+        dt = self._datetime_for_key(key)
+      except:
+        continue
+        
       if dt > end:
         break
       else:
@@ -79,3 +75,42 @@ class CommonCrawlSource(S3Source):
 
 datasources.set_source_for_url(CommonCrawlSource, 's3://aws-publicdatasets/common-crawl/crawl-002/')
 datasources.set_source_for_url(CommonCrawlSource, 'http://aws-publicdatasets.s3.amazonaws.com/common-crawl/crawl-002/')
+
+import calendar
+class CommonCrawlSource2012(CommonCrawlSource):
+  def _datetime_for_key(self, key):
+    """
+    Rerturn the datetime of the key from the given URL.
+    
+    2012 Common crawl has the format of
+    <prefix>/<unix timestamp in miliseconds>/<timestamp>_<sequence>.arc.gz
+    
+    For example, given a key that looks like this:
+    common-crawl/parse-output/segment/1341690147253/1341708194364_11.arc.gz
+    
+    We pars out the <unix timestamp in miliseconds> in this case "1341690147253"
+    and return it as a datetime object.
+    
+    """
+    prefix, start_time, arc = key.name.rsplit('/',2)
+    time_stamp = float(start_time) / 1000
+
+    return datetime.datetime.utcfromtimestamp(time_stamp)
+
+  def _prefix_for_datetime(self, dt):
+    """
+    Given a datatime return the starting prefix
+    """
+    
+    timestamp= int(calendar.timegm(dt.timetuple()) * 1000)
+
+    key_name = "{base}/segment/{timestamp}".format(
+      base=self.prefix,
+      timestamp = timestamp
+    )
+
+    return key_name
+
+
+datasources.set_source_for_url(CommonCrawlSource2012, 's3://aws-publicdatasets/common-crawl/parse-output/')
+datasources.set_source_for_url(CommonCrawlSource2012, 'http://aws-publicdatasets.s3.amazonaws.com/common-crawl/parse-output/')
