@@ -34,6 +34,20 @@ from fake import FakeRule
 
 class TestCommonCrawlSource(TestCase):
   
+  def s3_mock(self):
+    data = open(os.path.dirname(__file__) + '/data/2012_common_crawl_listing.txt')
+    keys = dict([(l.strip(), 'bogus data') for l in data])
+    
+    s3 = MockS3Connection()
+    s3.mock_s3_fs['aws-publicdatasets']['keys'] = keys
+    
+    s3.mock_s3_fs['aws-publicdatasets']['keys']['common-crawl/parse-output/valid_segments.txt'] = (
+      '1341690147253\n'
+      '1341690150308\n'
+      '1346981172155\n'
+    )
+    return s3
+  
   
   @patch('boto.connect_s3', MockS3Connection)
   def test_sourcing_common_crawl_2010(self):
@@ -79,20 +93,14 @@ class TestCommonCrawlSource(TestCase):
   def test_sourcing_common_crawl_2012(self):
     # shut boto's debug messaging up during tests
     logging.getLogger('boto').setLevel(logging.INFO)
-
-    data = open(os.path.dirname(__file__) + '/data/2012_common_crawl_listing.txt')
-    keys = dict([(l.strip(), 'bogus data') for l in data])
-    
-    s3 = MockS3Connection()
-    s3.mock_s3_fs['aws-publicdatasets']['keys'] = keys
-    
-    with patch('boto.connect_s3', lambda a1,a2:s3):
+   
+    with patch('boto.connect_s3', lambda a1,a2:self.s3_mock()):
       datasources.load()
-      url = 's3://bogus-key:bogus-secrect@aws-publicdatasets/common-crawl/parse-output/'
+      url = 's3://bogus-key:bogus-secrect@aws-publicdatasets/common-crawl/parse-output/segment/'
       source = datasources.source_for(url)
 
       source.rule = FakeRule()
-      assert isinstance(source, datasources.common_crawl.CommonCrawlSource2012)
+      eq_(source.__class__, datasources.common_crawl.CommonCrawl2012Source)
       
       start = datetime(2012, 7, 7, 19, 42, 27, 253000)
       eq_(source.earliest_record_time(), start)
@@ -120,7 +128,44 @@ class TestCommonCrawlSource(TestCase):
         []
       )
 
-      urls = source.segment_between(datetime(2012,9,07, 00), datetime(2012,9,07, 23))
-      
+      urls = source.segment_between(datetime(2012,9,07, 00), datetime(2012,9,30, 23))      
       eq_(len(urls), 10)
+      
+      
+      # we should see everything if we query for the whole year
+      urls = source.segment_between(datetime(2012,1,01, 00), datetime(2012,12,31, 23))      
+      eq_(len(urls), 67)
+
+#
+  def test_sourcing_common_crawl_2012_metadata(self):
+    # shut boto's debug messaging up during tests
+    logging.getLogger('boto').setLevel(logging.INFO)
+ 
+    with patch('boto.connect_s3', lambda a1,a2:self.s3_mock()):
+      datasources.load()
+      url = 's3://bogus-key:bogus-secrect@aws-publicdatasets/common-crawl/parse-output/segment?metadata'
+      source = datasources.source_for(url)
+
+      source.rule = FakeRule()
+      eq_(source.__class__, datasources.common_crawl.CommonCrawl2012MetadataSource)
+      start = datetime(2012, 7, 7, 19, 42, 27, 253000)
+
+      eq_(source.earliest_record_time(), start)
+      end = start + timedelta(days=1)
+
+      urls = source.segment_between(start,end)
+
+      eq_(len(urls), 7)
+      
+      # day's without data should return an empty list
+      urls = source.segment_between(datetime(2009,9,21, 00), datetime(2009,9,22, 00))
+      self.assertSequenceEqual(
+        urls,
+        []
+      )
+      
+  
+    
+
+    
 

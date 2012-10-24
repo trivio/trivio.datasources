@@ -13,6 +13,20 @@ common-crawl/parse-output/segment/1341690147253/1341708199267_10.arc.gz
 common-crawl/parse-output/segment/1341690147253/1341708199421_43.arc.gz
 common-crawl/parse-output/segment/1341690147253/1341708199582_27.arc.gz
 common-crawl/parse-output/segment/1341690147253/1341708200284_51.arc.gz
+common-crawl/parse-output/segment/1341690147253/metadata-00001
+common-crawl/parse-output/segment/1341690147253/metadata-00002
+common-crawl/parse-output/segment/1341690147253/metadata-00003
+common-crawl/parse-output/segment/1341690147253/metadata-00004
+common-crawl/parse-output/segment/1341690147253/metadata-00005
+common-crawl/parse-output/segment/1341690147253/metadata-00006
+common-crawl/parse-output/segment/1341690147253/metadata-00007
+common-crawl/parse-output/segment/1341690147253/textData-00001
+common-crawl/parse-output/segment/1341690147253/textData-00002
+common-crawl/parse-output/segment/1341690147253/textData-00003
+common-crawl/parse-output/segment/1341690147253/textData-00004
+common-crawl/parse-output/segment/1341690147253/textData-00005
+common-crawl/parse-output/segment/1341690147253/textData-00006
+common-crawl/parse-output/segment/1341690147253/textData-00007
 common-crawl/parse-output/segment/1341690150308/1341690941476_11.arc.gz
 common-crawl/parse-output/segment/1341690150308/1341690941524_0.arc.gz
 common-crawl/parse-output/segment/1341690150308/1341690941553_16.arc.gz
@@ -65,3 +79,5 @@ common-crawl/parse-output/segment/1346981172155/1347000918776_36.arc.gz
 common-crawl/parse-output/segment/1346981172155/1347000919236_69.arc.gz
 common-crawl/parse-output/segment/1346981172155/1347000919584_72.arc.gz
 common-crawl/parse-output/segment/1346981172155/1347000921416_20.arc.gz
+
+

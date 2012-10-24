@@ -11,3 +11,34 @@ def input_stream(stream):
     yield record
 
 
+from collections import namedtuple
+
+
+
+@datasources.read_mimetype('application/x-arc-x')
+def arc_input_stream(stream):
+  stream = GzipFile(fileobj=stream)
+  
+  file_header = stream.readline().rstrip()
+  file_source = stream.readline().rstrip()
+  column_desc = stream.readline().rstrip()
+  column_desc = [f.lower().replace('-','_') for f in column_desc.split(' ')]
+  column_desc.append('payload')
+  #ARCRecord = namedtuple('ARCRecord', column_desc + ['payload'])
+  
+  #trailing newline
+  stream.readline()
+  
+  while True:
+    record = stream.readline()
+    if record == '':
+      break
+    else:
+      record = record.rstrip().split(' ')
+      
+    arc_length = record[-1] = int(record[-1])
+    # add payload
+    record.append(stream.read(arc_length))
+  
+    yield dict(zip(column_desc, record))
+  

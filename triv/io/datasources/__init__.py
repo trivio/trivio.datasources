@@ -3,7 +3,7 @@ import os
 import re
 
 
-sources_by_url            = {}
+sources_by_url            = []
 sources_by_scheme         = {}
 
 input_streams_for_urls    = {}
@@ -77,8 +77,13 @@ def set_source_for_scheme(source, scheme):
   add_scheme(scheme)
   sources_by_scheme[scheme] = source
   
-def set_source_for_url(source, url):
-  sources_by_url[url] = source
+def set_source_for_url(source, url_pattern):
+  if not url_pattern.endswith('*'):
+    url_pattern += ".*"
+  exp = re.compile(url_pattern)
+  
+  sources_by_url.append((url_pattern, exp, source))
+  sources_by_url.sort(key=lambda t: t[0], reverse=True)
   
 def set_input_stream_for_scheme(scheme, input_stream):
   add_scheme(scheme)
@@ -139,21 +144,26 @@ def source_class_for(parsed_url):
 
   src_cls = None
   
-  # See if we have a source for this specific URL or subdomain
-  for prefix, cls in sources_by_url.items():
-    if url.startswith(prefix):
+  # Search URLs from longest to shortest looking for the first one that shares
+  # the common prefix
+  #sources = sorted(sources_by_url.items(), key=lambda x: x[0], reverse=True)
+  
+  for url_pattern, exp, cls in sources_by_url:
+    if exp.search(url):
       return cls
   
       
   return sources_by_scheme.get(scheme)
 
 def source_for(url):
+
   parsed_url = urlparse.urlparse(url)
   src_cls = source_class_for(parsed_url) 
   if src_cls:
     return src_cls(parsed_url)
     
 def input_stream_for(stream, size, url, params):
+
   parsed_url = urlparse.urlparse(url)
   src_cls = source_class_for(parsed_url)
 
@@ -190,7 +200,7 @@ def map_input_stream(stream, size, url, params):
   from disco.util import schemesplit
   import disco.func
   from triv.io import datasources, task
-  
+
   datasources.load()
   task.push(Task)
   input_stream = datasources.input_stream_for(stream, size, url, params)
@@ -207,7 +217,7 @@ def sample_input_stream(fd, url, size, params):
   count = 0
      
   for record in fd:
-    if count == 1000:
+    if count == 100000:
       return
     else:
       count +=1

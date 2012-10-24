@@ -72,6 +72,7 @@ class MockBucket:
             return MockKey(bucket=self, name=key_name, date_to_str=to_rfc1123)
         else:
             return None
+    lookup=get_key
 
     def get_location(self):
         return self.connection.mock_s3_fs[self.name]['location']
@@ -84,6 +85,11 @@ class MockBucket:
             if key_name.startswith(prefix) and (key_name > marker):
                 yield MockKey(bucket=self, name=key_name,
                               date_to_str=to_iso8601)
+
+    def get_all_keys(self, maxkeys=1000, **args):
+      return list(self.list(**args))[:maxkeys]
+        
+      
 
 
 class MockKey(object):
@@ -114,10 +120,10 @@ class MockKey(object):
     def read_mock_data(self):
         """Read the bytes for this key out of the fake boto state."""
         if self.name in self.bucket.mock_state():
-            return self.bucket.mock_state()[self.name][0]
+            return self.bucket.mock_state()[self.name]
         else:
             raise boto.exception.S3ResponseError(404, 'Not Found')
-
+    read = read_mock_data
     def write_mock_data(self, data):
         if self.name in self.bucket.mock_state():
             self.bucket.mock_state()[self.name] = (data, datetime.utcnow())
