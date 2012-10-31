@@ -24,10 +24,9 @@ def arc_input_stream(stream):
   column_desc = stream.readline().rstrip()
   column_desc = [f.lower().replace('-','_') for f in column_desc.split(' ')]
   column_desc.append('payload')
-  #ARCRecord = namedtuple('ARCRecord', column_desc + ['payload'])
-  
-  #trailing newline
+  column_desc.append('doc_offset')
   stream.readline()
+  offset = 0
   
   while True:
     record = stream.readline()
@@ -39,6 +38,8 @@ def arc_input_stream(stream):
     arc_length = record[-1] = int(record[-1])
     # add payload
     record.append(stream.read(arc_length))
+    # add offset
+    record.append(offset)
   
     yield dict(zip(column_desc, record))
   

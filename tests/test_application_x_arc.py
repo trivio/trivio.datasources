@@ -17,5 +17,5 @@ class TestARCReader(TestCase):
     stream = open(sample_path)
 
     # todo, inspect sample file by hand 
-    #for record in a_input_stream(stream):
+    #for record in arc_input_stream(stream):
     #  print record

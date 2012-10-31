@@ -102,6 +102,23 @@ class CommonCrawl2012Source(CommonCrawlSource):
     urls = [key.generate_url(seconds_good_for,force_http=True)]
 
     return self.input_stream, urls
+
+  def segment_between(self, start,end):
+    limit = self.rule._params.get('maxinput', float('inf'))
+    urls = []
+
+    for segment in filter(lambda s: start <= s <= end, self.segments):    
+      prefix = self._prefix_for_datetime(segment)
+
+      for key in self.bucket.list(prefix=prefix):
+        dt = self._datetime_for_key(key)
+        urls.append(key.generate_url(seconds_good_for,force_http=True))
+        limit -= 1
+        if limit <= 0:
+
+          return urls
+
+    return urls
   
   
   def _datetime_for_key(self, key):
@@ -153,7 +170,6 @@ datasources.set_source_for_url(CommonCrawl2012Source, 'http://aws-publicdatasets
 class CommonCrawl2012MetadataSource(CommonCrawl2012Source):
   @staticmethod
   def input_stream(stream, size, url, params):
-    print "====== common crawl metadata ======="
     params.content_type = 'application/x-hadoop-sequence'
     stream, size, url = http_input_stream(stream, size,url,params)
     return stream
@@ -176,23 +192,6 @@ class CommonCrawl2012MetadataSource(CommonCrawl2012Source):
     prefix = super(CommonCrawl2012MetadataSource, self)._prefix_for_datetime(dt)
     return prefix + 'metadata-'
     
-
-  def segment_between(self, start,end):
-    limit = self.rule._params.get('maxinput', float('inf'))
-    urls = []
-    
-    for segment in filter(lambda s: start <= s <= end, self.segments):    
-      prefix = self._prefix_for_datetime(segment)
-  
-      for key in self.bucket.list(prefix=prefix):
-        dt = self._datetime_for_key(key)
-        urls.append(key.generate_url(seconds_good_for,force_http=True))
-        limit -= 1
-        if limit <= 0:
-
-          return urls
-        
-    return urls
 
 
 datasources.set_source_for_url(CommonCrawl2012MetadataSource, 's3://aws-publicdatasets/common-crawl/parse-output/segment\?metadata')
