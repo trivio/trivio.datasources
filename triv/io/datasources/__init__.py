@@ -1,6 +1,8 @@
 import urlparse
 import os
 import re
+from pkg_resources import resource_listdir
+
 
 
 sources_by_url            = []
@@ -14,7 +16,7 @@ input_streams_for_domains   = {}
 input_streams_for_schemes   = {}
 
 from triv.io import task
-
+from triv.io.modutils import modules_from_path
 
 class DataSource(object):
   
@@ -125,8 +127,6 @@ def write_mimetype(mimetype):
 
 
 def writer_for_mimetype(stream, partition, url, params):
-  from triv.io import datasources
-  datasources.load()
   cls = datasources.writers_by_mimetype[params.mimetype]
   return cls(stream)
 
@@ -199,9 +199,9 @@ def input_stream_for(stream, size, url, params):
 def map_input_stream(stream, size, url, params):
   from disco.util import schemesplit
   import disco.func
-  from triv.io import datasources, task
+  #from triv.io import datasources, task
+  from triv.io import  task
 
-  datasources.load()
   task.push(Task)
   input_stream = datasources.input_stream_for(stream, size, url, params)
   if input_stream:
@@ -224,15 +224,19 @@ def sample_input_stream(fd, url, size, params):
 
     yield record
 
-def load():
+def load(*additional_paths):
   import triv.io.mimetypes
 
-  for f in os.listdir(os.path.dirname(__file__)):
+  for f in resource_listdir(__name__,''):
     match = re.match('^(?!__)(.*)\.py',f)
     if match:
       mod_name = match.group(1)
       module = __import__('triv.io.datasources.{0}'.format(mod_name), globals(),locals())
-      
-
-
-
+  
+  for path in additional_paths:
+    for mod_name in modules_from_path(path):
+      try:
+        __import__(mod_name, globals(), locals())
+      except ImportError,e:
+        print e
+        print "Error importing: {}".format(mod_name)
