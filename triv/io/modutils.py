@@ -12,7 +12,7 @@ def modules_from_path(path):
   prefix_len = len(path) + 1
   for root, dirs, files in os.walk(path):
     for d in dirs[:]:
-      if d.startswith('.'):
+      if d.startswith('.') or d.startswith('test'):
         dirs.remove(d)
     
     if root != path and  '__init__.py' not in files:
@@ -26,6 +26,9 @@ def modules_from_path(path):
     # "/blah/foo/" -> ["", "blah", "foo", "" ]
     package = root[prefix_len:].split('/')
     for file in files:
+      if file.startswith('test'):
+        continue
+        
       match = pattern.match(file)
       if match:
         name = match.group(1)
