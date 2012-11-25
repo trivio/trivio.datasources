@@ -75,6 +75,8 @@ def add_scheme(scheme):
   if scheme not in urlparse.uses_query:
     urlparse.uses_query.append(scheme)
   
+  
+  
 def set_source_for_scheme(source, scheme):
   add_scheme(scheme)
   sources_by_scheme[scheme] = source
@@ -90,7 +92,36 @@ def set_source_for_url(source, url_pattern):
 def set_input_stream_for_scheme(scheme, input_stream):
   add_scheme(scheme)
 
+
+
+def source(scheme=None, url=None):
+  """Decorator to register a datasoure for a given scheme, url or both
   
+  Usage:
+  To declare the source that handles a scheme
+  
+  @datastores.source(scheme='http')
+  class HttpSource():
+    ...
+    
+  To declare the source that handles a url
+
+  @datastores.source(url='http://example.com/url')
+  class HttpSpecificURLSource():
+      ...
+    
+  """
+  def wrap(f):
+    if scheme:
+      set_source_for_scheme(f,scheme)
+
+    if url:
+      set_source_for_url(f,url)
+
+    return f
+
+  return wrap
+
 
 def read_mimetype(mimetype):
   """
@@ -127,8 +158,12 @@ def write_mimetype(mimetype):
 
 
 def writer_for_mimetype(stream, partition, url, params):
-  cls = datasources.writers_by_mimetype[params.mimetype]
-  return cls(stream)
+  if hasattr(params, 'mimetype'):
+    cls = datasources.writers_by_mimetype[params.mimetype]
+    return cls(stream)
+  else:
+    from disco.func import disco_output_stream
+    return disco_output_stream(stream, partition, url, params)
 
   
 def source_class_for(parsed_url):
@@ -161,6 +196,32 @@ def source_for(url):
   src_cls = source_class_for(parsed_url) 
   if src_cls:
     return src_cls(parsed_url)
+
+
+def error_proof(stream, size, url, params):
+  """
+  Lgos and continues reading even if an error was encountered
+  """
+  try:
+    count = 0
+    try:
+      for record in stream:
+        yield record
+        count += 1
+    except Exception, e:
+      print "Error {} encountered at record {} in {} {}".format(
+        e,
+        count,
+        stream,
+        url
+      )
+  finally:
+    try:
+      task.pop()
+    except IndexError:
+      pass
+
+
     
 def input_stream_for(stream, size, url, params):
 
@@ -168,50 +229,61 @@ def input_stream_for(stream, size, url, params):
   src_cls = source_class_for(parsed_url)
 
   if hasattr(src_cls, 'input_stream'):
-    stream = src_cls.input_stream(stream, size, url, params)
-    if hasattr(params, 'content_type'):
-      stream = reader_for_mimetype(params.content_type)(stream)
-      
-    def log_if_error(stream):
-      try:
-        count = 0
-        try:
-          for record in stream:
-            yield record
-            count += 1
-        except Exception, e:
-          print "Error {} encountered at record {} in {} {}".format(
-            e,
-            count,
-            stream,
-            url
-          )
-      finally:
-        try:
-          task.pop()
-        except IndexError:
-          pass
-    
-    return log_if_error(stream)
+    return src_cls.input_stream(stream, size, url, params)
   else:
     return None
 
 def map_input_stream(stream, size, url, params):
+  """
+  Looks up an input stream if one is registered, if not
+  falls back to disco's defaults.
+  
+  """
+  
+  # achtung! warning! when this function is called by the disco
+  # node the globals in this module will no longer be visible
+  # hence why we access everything through datasources
   from disco.util import schemesplit
   import disco.func
-  #from triv.io import datasources, task
-  from triv.io import  task
+  from triv.io import datasources, task
 
-  task.push(Task)
+
+  # Note: Task is a global set by disco, but not necsarrily seen by other object, 
+  # we push it onto the context stack which will allow it to be imported by our
+  # modules that need it
+
+  try:
+    task.push(Task)
+  except NameError:
+    # it's a test
+    pass
   input_stream = datasources.input_stream_for(stream, size, url, params)
-  if input_stream:
-    # Note: Task is a global set by disco, we push it onto the context stap
-    # which will allow it to be imported by the modules that need it
-    return input_stream
-  else:
-    # we don't handle the given url, see if vanilla disco moduels can
-    task.pop() # this is normally cleared when we're done iterating
-    return disco.func.map_input_stream(stream,size,url,params)
+
+  if not input_stream:
+    # we don't handle the given url, see if vanilla disco moduels can...
+    
+    try:
+      # this is normally cleared when we're done iterating
+      
+      task.pop()
+    except IndexError:
+       pass
+       
+    input_stream = disco.func.map_input_stream(stream,size,url,params)
+
+  # same code in classic/worker...
+  if isinstance(input_stream, tuple):
+    if len(input_stream) == 3:
+      input_stream, size, url = input_stream
+    else:
+      input_stream, url = input_sttream
+
+  if hasattr(params, 'content_type'):
+    input_stream = datasources.reader_for_mimetype(params.content_type)(input_stream,size,url,params)
+
+
+  return input_stream
+  
 
 def sample_input_stream(fd, url, size, params):
   count = 0

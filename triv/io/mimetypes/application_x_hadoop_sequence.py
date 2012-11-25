@@ -6,7 +6,7 @@ from hadoop.io import SequenceFile
 
 
 @datasources.read_mimetype('application/x-hadoop-sequence')
-def hadoop_input_stream(stream):
+def hadoop_input_stream(stream, size, url, params):
    
   stream.seek(0,2)
   size = stream.tell()

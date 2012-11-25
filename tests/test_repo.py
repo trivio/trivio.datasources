@@ -42,6 +42,7 @@ class TestRepoSource(TestCase):
     task.push(FakeTask())
     
     input_stream = datasources.input_stream_for(None, 0, 'repo://dir1/doc1.txt', None)
+
     eq_('Hi mom!', input_stream.next().read())
     task.pop()
     

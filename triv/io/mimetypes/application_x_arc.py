@@ -3,7 +3,7 @@ from triv.gzip import GzipFile
 import warc
 
 @datasources.read_mimetype('application/x-arc')
-def input_stream(stream):
+def input_stream(stream, size, url, params):
   arc = warc.ARCFile(fileobj=GzipFile(fileobj=stream))
   for doc in arc:
     record = dict(doc.header)
@@ -16,7 +16,7 @@ from collections import namedtuple
 
 
 @datasources.read_mimetype('application/x-arc-x')
-def arc_input_stream(stream):
+def arc_input_stream(stream, size, url, params):
   stream = GzipFile(fileobj=stream)
   
   file_header = stream.readline().rstrip()

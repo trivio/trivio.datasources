@@ -25,7 +25,7 @@ class TestHadoopReader(TestCase):
 
 
     counts = {}
-    for url, metadata in hadoop_input_stream(stream):
+    for url, metadata in hadoop_input_stream(stream,None,None,None):
       host = urlparse(str(url)).netloc
       key = '.'.join(reversed(host.split('.')))
       
