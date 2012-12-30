@@ -138,7 +138,7 @@ def read_mimetype(mimetype):
   return wrap
     
 def reader_for_mimetype(mimetype):
-  return readers_by_mimetype.get(mimetype, lambda s:s)
+  return readers_by_mimetype.get(mimetype, lambda s,part, url,params: s)
 
 
 def write_mimetype(mimetype):
