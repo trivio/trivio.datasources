@@ -1,0 +1,15 @@
+{
+  "lang": "python",
+  "version": "2.7",
+    
+  "customSteps": [
+    "nosetests -v"
+  ],
+  
+  "deploy":[
+    "chmod 755 deploy/setup_pypi.sh",
+    "deploy/setup_pypi.sh",
+    "python setup.py sdist upload | grep 'Server response (200): OK'"
+  ]
+  
+}
