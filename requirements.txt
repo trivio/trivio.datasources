@@ -5,3 +5,4 @@ git+https://github.com/trivio/Hadoop.git#egg=Hadoop
 MySQL-python
 
 nose
+mock
