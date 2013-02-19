@@ -4,5 +4,9 @@ warc
 git+https://github.com/trivio/Hadoop.git#egg=Hadoop
 MySQL-python
 
+git+https://github.com/srobertson/disco-client.git#egg=disco
+
+
+
 nose
 mock
