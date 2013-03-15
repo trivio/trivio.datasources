@@ -6,7 +6,5 @@ MySQL-python
 
 git+https://github.com/srobertson/disco-client.git#egg=disco
 
-
-
 nose
 mock
