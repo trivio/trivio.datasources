@@ -32,9 +32,6 @@ def arc_input_stream(stream, size, url, params):
     record = stream.readline()
     if record == '':
       break
-    elif record == '\n':
-      # warning: a trailing new line may only be in the 2010 cc set
-      continue
     else:
       record = record.rstrip().split(' ')
     
@@ -46,6 +43,7 @@ def arc_input_stream(stream, size, url, params):
       
     # add payload
     record.append(stream.read(arc_length))
+    assert stream.read(1) == '\n'
     # add offset
     record.append(offset)
   

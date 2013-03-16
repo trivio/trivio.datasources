@@ -281,7 +281,7 @@ def map_input_stream(stream, size, url, params):
   if hasattr(params, 'content_type'):
     input_stream = datasources.reader_for_mimetype(params.content_type)(input_stream,size,url,params)
 
-
+  print "using input stream {}".format(input_stream)
   return input_stream
   
 
