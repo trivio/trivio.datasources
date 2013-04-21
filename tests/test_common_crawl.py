@@ -108,7 +108,7 @@ class TestCommonCrawlSource(TestCase):
 
       urls = source.segment_between(start,end)
       
-      eq_(len(urls), 57)
+      eq_(len(urls), 71)
       
       eq_(
         urls[0],
@@ -134,7 +134,7 @@ class TestCommonCrawlSource(TestCase):
       
       # we should see everything if we query for the whole year
       urls = source.segment_between(datetime(2012,1,01, 00), datetime(2012,12,31, 23))      
-      eq_(len(urls), 67)
+      eq_(len(urls), 81)
 
 #
   def test_sourcing_common_crawl_2012_metadata(self):
