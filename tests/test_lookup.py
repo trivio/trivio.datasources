@@ -49,7 +49,6 @@ class TestDataStoreRegistry(TestCase):
     mimetype = 'application/x-foo'
     @datasources.read_mimetype(mimetype)
     def foo(stream, size, url, params):
-      import pdb; pdb.set_trace()
       return FooStream()
     
     params = Params()
@@ -57,8 +56,7 @@ class TestDataStoreRegistry(TestCase):
 
     url = "http://example.com/foo"
 
-
     stream = datasources.map_input_stream(None, None, url, params)
-    
+
     assert isinstance(stream, FooStream)
     

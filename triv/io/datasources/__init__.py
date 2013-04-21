@@ -15,8 +15,9 @@ writers_by_mimetype       = {}
 input_streams_for_domains   = {}
 input_streams_for_schemes   = {}
 
-from triv.io import task
+from triv.io.task import task
 from triv.io.modutils import modules_from_path
+
 
 class DataSource(object):
   
@@ -245,7 +246,8 @@ def map_input_stream(stream, size, url, params):
   # hence why we access everything through datasources
   from disco.util import schemesplit
   import disco.func
-  from triv.io import datasources, task
+  from triv.io import datasources
+  from triv.io.task import task
 
 
   # Note: Task is a global set by disco, but not necsarrily seen by other object, 

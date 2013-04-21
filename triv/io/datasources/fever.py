@@ -1,6 +1,7 @@
 import datetime
 
 from disco.ddfs import DDFS
+import disco.func
 
 
 from triv.io import datasources

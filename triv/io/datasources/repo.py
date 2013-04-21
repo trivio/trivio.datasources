@@ -4,7 +4,8 @@ from urlparse import urlparse, urlunparse, parse_qs
 
 from dateutil.parser import parse as parse_date
 
-from triv.io import datasources, task
+from triv.io import datasources
+from triv.io.task import task
 
 class RepoSource(datasources.DataSource):
   """Sources files relative to the currently running job"""
