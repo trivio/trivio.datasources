@@ -9,7 +9,7 @@ setup(
   packages = find_packages(),
 
   dependency_links = [
-    'https://github.com/trivio/Hadoop/tarball/master#egg=Hadoop'
+    'https://github.com/trivio/Hadoop/tarball/master#egg=Hadoop-0.1'
   ],
   install_requires = [
     'boto',
