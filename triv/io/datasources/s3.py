@@ -9,15 +9,41 @@ class S3Source(datasources.DataSource):
   """Treats S3 like a database"""
     
   def __init__(self, parsed_url):
-    super(S3Source,self).__init__(parsed_url)
-    self.acccess_key_id    = urlparse.unquote(parsed_url.username)
-    self.secret_access_key = urlparse.unquote(parsed_url.password)
 
-    self.conn = boto.connect_s3(self.acccess_key_id , self.secret_access_key)
+    super(S3Source,self).__init__(parsed_url)
+
+    username = parsed_url.username if parsed_url.username else ''
+    password = parsed_url.password if parsed_url.password else ''
+
+
+    self.access_key_id     = urlparse.unquote(username)
+    self.secret_access_key = urlparse.unquote(password)
+
+    if self.access_key_id and self.secret_access_key:
+      self.conn = boto.connect_s3(self.acccess_key_id , self.secret_access_key)
+    else:
+      self.conn = boto.connect_s3(anon=True)
+
     self.bucket_name = parsed_url.hostname
     self.bucket = self.conn.get_bucket(self.bucket_name,validate=False)
 
-    
+  
+  def generate_url(self, key, seconds_good_for=60*60*24, force_http=False):
+    if not self.conn.anon:
+      return key.generate_url(seconds_good_for, force_http=force_http)
+    else:
+      protocol = 'http' if force_http else 'https'
+      return self.conn.calling_format.build_url_base(
+        self.conn, 
+        protocol,
+        self.conn.server_name(self.conn.port),
+        key.bucket.name, key.key
+      )
+
+      
+
+
+
   def earliest_record_time(self):
     # Grab and parse the first key
     #self.bucket.get_all_keys(self.prefix + '/', delimiter='/', max_keys=1)
@@ -35,8 +61,8 @@ class S3Source(datasources.DataSource):
     # with the start time
     keys = self.bucket.list("{0}/dt={1}/".format(self.prefix, start.isoformat()), delimiter='/')
     seconds_good_for = 60*60*24
-  
-    urls = [k.generate_url(seconds_good_for,force_http=True) for k in keys if k.size > 0]
+    urls = [self.generate_url(k,force_http=True) for k in keys if k.size > 0]
     return urls
+
     
 datasources.set_source_for_scheme(S3Source,'s3')

@@ -46,8 +46,7 @@ class CommonCrawlSource(S3Source):
     
     # grab the first key
     key = iter(self.bucket.list(marker = marker)).next()
-    urls = [key.generate_url(seconds_good_for,force_http=True)]
-    
+    urls = [self.generate_url(key, force_http=True)]
     return self.input_stream, urls
     
     
@@ -69,7 +68,7 @@ class CommonCrawlSource(S3Source):
         if limit < 0:
           break
         if key.size > 0:
-          urls.append(key.generate_url(seconds_good_for,force_http=True))
+          urls.append(self.generate_url(key,force_http=True))
           
     return urls
     
@@ -99,7 +98,7 @@ class CommonCrawl2012Source(CommonCrawlSource):
 
     # grab the first key
     key = iter(self.bucket.list(prefix = prefix)).next()
-    urls = [key.generate_url(seconds_good_for,force_http=True)]
+    urls = [self.generate_url(key, force_http=True)]
 
     return self.input_stream, urls
 
@@ -112,7 +111,7 @@ class CommonCrawl2012Source(CommonCrawlSource):
 
       for key in self.bucket.list(prefix=prefix):
         dt = self._datetime_for_key(key)
-        urls.append(key.generate_url(seconds_good_for,force_http=True))
+        urls.append(self.generate_url(key,force_http=True))
         limit -= 1
         if limit <= 0:
 
