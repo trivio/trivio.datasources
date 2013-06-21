@@ -2,7 +2,7 @@ from setuptools import setup,find_packages
 
 setup(
   name='trivio.datasources',
-  version = '0.0.2',
+  version = '0.0.3',
   description='Third party datasources for htttp://triv.io',
   author='Scott Robertson',
   author_email='scott@triv.io',
