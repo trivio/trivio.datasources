@@ -201,7 +201,7 @@ def source_for(url):
 
 def error_proof(stream, size, url, params):
   """
-  Lgos and continues reading even if an error was encountered
+  Logs and continues reading even if an error was encountered
   """
   try:
     count = 0
@@ -278,7 +278,7 @@ def map_input_stream(stream, size, url, params):
     if len(input_stream) == 3:
       input_stream, size, url = input_stream
     else:
-      input_stream, url = input_sttream
+      input_stream, url = input_stream
 
   if hasattr(params, 'content_type'):
     input_stream = datasources.reader_for_mimetype(params.content_type)(input_stream,size,url,params)

@@ -20,7 +20,7 @@ class S3Source(datasources.DataSource):
     self.secret_access_key = urlparse.unquote(password)
 
     if self.access_key_id and self.secret_access_key:
-      self.conn = boto.connect_s3(self.acccess_key_id , self.secret_access_key)
+      self.conn = boto.connect_s3(self.access_key_id , self.secret_access_key)
     else:
       self.conn = boto.connect_s3(anon=True)
 
