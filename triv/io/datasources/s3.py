@@ -22,7 +22,9 @@ class S3Source(datasources.DataSource):
     if self.access_key_id and self.secret_access_key:
       self.conn = boto.connect_s3(self.access_key_id , self.secret_access_key)
     else:
-      self.conn = boto.connect_s3(anon=True)
+      # as of boto 2.9.6 if access_key & and secret are None
+      # then s3 attempts to determine them.
+      self.conn = boto.connect_s3('','',anon=True)
 
     self.bucket_name = parsed_url.hostname
     self.bucket = self.conn.get_bucket(self.bucket_name,validate=False)
